@@ -1,0 +1,12 @@
+# ignora arquivos de sistema e python
+__pycache__/
+*.py[cod]
+.venv/
+
+# ignora pastas de download
+downloads/
+
+# sistema de segurança, não subir pro github    
+.env
+cookies.txt
+cookies.txt.txt
