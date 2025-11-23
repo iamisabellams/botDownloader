@@ -64,4 +64,6 @@ def handle_message(message):
 
 if __name__ == "__main__":
     print("Bot rodando...")
-    bot.polling()
+    # O infinity_polling reconecta automaticamente se a internet cair
+    # timeout=10 e long_polling_timeout=5 ajudam a manter a conexão estável
+    bot.infinity_polling(timeout=10, long_polling_timeout=5)
