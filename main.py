@@ -1,7 +1,7 @@
 import os
 import telebot
 import threading
-from flask import Flask # Import novo
+from flask import Flask 
 from telebot import types
 from dotenv import load_dotenv
 from services.downloader import download_video
@@ -71,7 +71,7 @@ def handle_message(message):
 
                 # remove o arquivo depois de enviar)
                 os.remove(path)
-                
+
             else:
                 bot.edit_message_text("Falha no download.", chat_id=message.chat.id, message_id=msg.message_id)
 

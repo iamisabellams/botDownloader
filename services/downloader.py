@@ -14,12 +14,12 @@ def download_video(url):
     arquivo_cookies = 'cookies.txt'
 
     options = {
-        'format': 'best[ext=mp4]/best',
+        'format': 'best', 
+        
         'outtmpl': f'downloads/{nome_arquivo}.%(ext)s',
         'noplaylist': True,
         'quiet': True,
-        
-        # aqui diz: use as chaves de acesso que estão neste arquivo texto
+        'writethumbnail': False, # garante que não baixe miniaturas extras
         'cookiefile': arquivo_cookies,
     }
     
@@ -32,7 +32,7 @@ def download_video(url):
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             return filename
-
+        
     except Exception as e:
         print(f"Erro no download: {e}")
         return None
