@@ -48,36 +48,38 @@ def callback_sobre(call):
 def handle_message(message):
     url = message.text
     if "http" in url:
-        msg = bot.reply_to(message, "Analisando...")
+        msg = bot.reply_to(message, "🔎 Analisando...")
         try:
+            print(f"--- INICIANDO DOWNLOAD: {url} ---") # debug 1
             path = download_video(url)
+            print(f"--- ARQUIVO BAIXADO: {path} ---")   # debug 2
+            
             if path and os.path.exists(path):
-                bot.edit_message_text("Enviando...", chat_id=message.chat.id, message_id=msg.message_id)
-
+                # descobre a extensão
                 extensao = os.path.splitext(path)[1].lower()
-
+                print(f"--- EXTENSÃO DETECTADA: {extensao} ---") # debug 3
+                
+                bot.edit_message_text("Enviando...", chat_id=message.chat.id, message_id=msg.message_id)
+                
                 with open(path, 'rb') as arquivo:
-                    if extensao in ['.jpg', '.jpeg', '.png', '.gif']:
-                        # se for imagem vai enviar a foto
-                        bot.send_photo(message.chat.id, arquivo, caption="Aqui está sua imagem!")
-                    elif extensao in ['mp3', '.wav', '.m4a']:
-                        
-                        # se for áudio vai enviar o áudio
-                        bot.send_audio(message.chat.id, arquivo, caption="Aqui está o seu áudio!")
-
+                    if extensao in ['.jpg', '.jpeg', '.png', '.webp']:
+                        print("--- TENTANDO ENVIAR COMO FOTO ---") # debug 4
+                        bot.send_photo(message.chat.id, arquivo, caption="Foto!")
+                    elif extensao in ['.mp3', '.m4a', '.wav']:
+                        bot.send_audio(message.chat.id, arquivo, caption="Áudio!")
                     else:
-                        # se for video envia como video
-                        bot.send_video(message.chat.id, arquivo, caption="Aqui está seu vídeo!")
-
-                # remove o arquivo depois de enviar)
+                        print("--- TENTANDO ENVIAR COMO VÍDEO ---") # debug 5
+                        bot.send_video(message.chat.id, arquivo, caption="Vídeo!")
+                
+                print("--- ENVIO SUCESSO! ---") # debug 6
                 os.remove(path)
-
             else:
+                print("--- ERRO: ARQUIVO NÃO EXISTE APÓS DOWNLOAD ---")
                 bot.edit_message_text("Falha no download.", chat_id=message.chat.id, message_id=msg.message_id)
-
+                
         except Exception as e:
-            print(e)
-            bot.edit_message_text("Erro interno.", chat_id=message.chat.id, message_id=msg.message_id)
+            print(f"--- ERRO CRÍTICO: {e} ---") # debug de rrro real
+            bot.edit_message_text(f"Erro: {e}", chat_id=message.chat.id, message_id=msg.message_id)
 
 if __name__ == "__main__":
     print("Bot rodando...")
