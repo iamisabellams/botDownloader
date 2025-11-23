@@ -53,11 +53,28 @@ def handle_message(message):
             path = download_video(url)
             if path and os.path.exists(path):
                 bot.edit_message_text("Enviando...", chat_id=message.chat.id, message_id=msg.message_id)
-                with open(path, 'rb') as v:
-                    bot.send_video(message.chat.id, v)
+
+                extensao = os.path.splitext(path)[1].lower()
+
+                with open(path, 'rb') as arquivo:
+                    if extensao in ['.jpg', '.jpeg', '.png', '.gif']:
+                        # se for imagem vai enviar a foto
+                        bot.send_photo(message.chat.id, arquivo, caption="Aqui está sua imagem!")
+                    elif extensao in ['mp3', '.wav', '.m4a']:
+                        
+                        # se for áudio vai enviar o áudio
+                        bot.send_audio(message.chat.id, arquivo, caption="Aqui está o seu áudio!")
+
+                    else:
+                        # se for video envia como video
+                        bot.send_video(message.chat.id, arquivo, caption="Aqui está seu vídeo!")
+
+                # remove o arquivo depois de enviar)
                 os.remove(path)
+                
             else:
                 bot.edit_message_text("Falha no download.", chat_id=message.chat.id, message_id=msg.message_id)
+
         except Exception as e:
             print(e)
             bot.edit_message_text("Erro interno.", chat_id=message.chat.id, message_id=msg.message_id)
