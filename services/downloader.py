@@ -7,32 +7,51 @@ def download_video(url):
         os.makedirs('downloads')
 
     nome_base = f"video_{int(time.time())}"
-    arquivo_cookies = 'cookies.txt'
-    usar_cookies = True
-    if "youtube.com" in url or "youtu.be" in url:
-        usar_cookies = False
+    
+    is_youtube = "youtube.com" in url or "youtu.be" in url
 
     options = {
-        'format': 'bestvideo+bestaudio/best',
+        'format': 'bestvideo+bestaudio/best', 
         'merge_output_format': 'mp4',
         'outtmpl': f'downloads/{nome_base}.%(ext)s',
         'noplaylist': True,
         'quiet': True,
         'writethumbnail': False,
-        'cookiefile': arquivo_cookies if usar_cookies else None,
     }
 
+    if not is_youtube:
+        options['cookiefile'] = 'cookies.txt'
+
     try:
+        print(f"Tentando baixar: {url} (YouTube: {is_youtube})")
         with yt_dlp.YoutubeDL(options) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
-            
-            if options.get('merge_output_format') == 'mp4' and not filename.endswith('.mp4'):
-                base, ext = os.path.splitext(filename)
-                return base + ".mp4"
-                
-            return filename
+            return corrigir_nome(filename)
 
     except Exception as e:
-        print(f"Erro no download: {e}")
+        print(f"Erro na Tentativa 1 (Qualidade Máxima): {e}")
+        if is_youtube:
+            print("Tentando Plano B (720p)...")
+            options['format'] = 'best[height<=720]/best'
+            try:
+                with yt_dlp.YoutubeDL(options) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    filename = ydl.prepare_filename(info)
+                    return corrigir_nome(filename)
+            except Exception as e2:
+                print(f"Erro na Tentativa 2: {e2}")
+                return None
         return None
+
+def corrigir_nome(filename):
+    if not filename.endswith('.mp4'):
+        base, ext = os.path.splitext(filename)
+        if os.path.exists(filename):
+            novo_nome = base + ".mp4"
+            try:
+                os.rename(filename, novo_nome)
+                return novo_nome
+            except:
+                return filename
+    return filename
